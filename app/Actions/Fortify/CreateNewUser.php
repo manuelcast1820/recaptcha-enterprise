@@ -26,13 +26,13 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input)
     {
-        // $client = new RecaptchaEnterpriseServiceClient(
-        //     [
-        //         'credentials' => json_decode(file_get_contents(storage_path('app/public/workards-enterprise.json')), true),
-        //         'projectId' => 'workards-342116'
-        //     ]
-        // );
-        $project = RecaptchaEnterpriseServiceClient::projectName('workards-342116');
+        $client = new RecaptchaEnterpriseServiceClient(
+            [
+                'credentials' => json_decode(file_get_contents(storage_path('app/public/workards-enterprise.json')), true),
+            ]
+        );
+        $project = RecaptchaEnterpriseServiceClient::projectName('workards-344402');
+
         // $event = (new Event())
         //     ->setSiteKey('6LcFD-QeAAAAAAd_oIG03wRmXROBsmMMkZl6KJdP')
         //     ->setExpectedAction('signup')
@@ -46,22 +46,29 @@ class CreateNewUser implements CreatesNewUsers
         // );
 
 
-        $client = new RecaptchaEnterpriseServiceClient();
-        $projectName = $client->projectName($project);
+        // $client = new RecaptchaEnterpriseServiceClient(
+        //     [
+        //         'credentials' => storage_path('app/public/workards-enterprise.json'),
+        //         // 'projectId' => 'workards-342116'
+        //     ]
+        // );
+        //TODO aplicar lo del enlace https://cloud.google.com/docs/authentication/production?hl=es
+        // $projectName = $client->projectName($project);
 
         $event = (new Event())
-            ->setSiteKey('6LcFD-QeAAAAAAd_oIG03wRmXROBsmMMkZl6KJdP')
+            ->setSiteKey('6LcVI-geAAAAABWa7zLN01SqgGMeNNeQZwRrfXMI')
             ->setToken($input['g-recaptcha-response']);
 
         $assessment = (new Assessment())
             ->setEvent($event);
 
         $response = $client->createAssessment(
-            $projectName,
+            'projects/workards-344402',
             $assessment
         );
+        
 
-        dd($response);
+
 
 
         // $webKeySettings = (new WebKeySettings())
@@ -73,8 +80,8 @@ class CreateNewUser implements CreatesNewUsers
         //     ->setDisplayName('recaptchaKey')
         //     ->setName('workardKey');
         // $response = $client->createKey($project, $key);
-        dd($response);
-
+        $bot_score = $response->getRiskAnalysis()->getScore();
+        dd($bot_score);
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -87,5 +94,18 @@ class CreateNewUser implements CreatesNewUsers
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+    }
+
+    public function generateTOken()
+    {
+        $client = new \Google_Client;
+        $client->setAuthConfig(storage_path('app/public/workards-enterprise.json'));
+        $client->useApplicationDefaultCredentials();
+        $client->addScope('https://www.googleapis.com/auth/cloud-platform');
+        $client->fetchAccessTokenWithAssertion();
+        $access_token = $client->getAccessToken();
+        var_dump($access_token);
+
+        dd($access_token);
     }
 }
