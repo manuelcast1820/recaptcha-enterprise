@@ -19,7 +19,7 @@
     <!-- Scripts -->
     <script src="{{ mix('js/app.js') }}" defer></script>
 
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LcyQuMeAAAAANsBcacEMfGjvB5zEXRJxys4hiiH"></script>
+
 </head>
 
 <body class="font-sans antialiased">

@@ -26,60 +26,25 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input)
     {
+
         $client = new RecaptchaEnterpriseServiceClient(
             [
-                'credentials' => json_decode(file_get_contents(storage_path('app/public/workards-enterprise.json')), true),
+                'credentials' => json_decode(file_get_contents(storage_path(env('GOOGLE_PATH_CREDENTIALS'))), true),
             ]
         );
-        $project = RecaptchaEnterpriseServiceClient::projectName('workards-344402');
-
-        // $event = (new Event())
-        //     ->setSiteKey('6LcFD-QeAAAAAAd_oIG03wRmXROBsmMMkZl6KJdP')
-        //     ->setExpectedAction('signup')
-        //     ->setToken($input['g-recaptcha-response']);
-
-        // $assessment = (new Assessment())
-        //     ->setEvent($event);
-        // $response = $client->createAssessment(
-        //     $project,
-        //     $assessment
-        // );
-
-
-        // $client = new RecaptchaEnterpriseServiceClient(
-        //     [
-        //         'credentials' => storage_path('app/public/workards-enterprise.json'),
-        //         // 'projectId' => 'workards-342116'
-        //     ]
-        // );
-        //TODO aplicar lo del enlace https://cloud.google.com/docs/authentication/production?hl=es
-        // $projectName = $client->projectName($project);
 
         $event = (new Event())
-            ->setSiteKey('6LcVI-geAAAAABWa7zLN01SqgGMeNNeQZwRrfXMI')
+            ->setSiteKey(env('GOOGLE_KEY_ACCOUNT'))
             ->setToken($input['g-recaptcha-response']);
 
         $assessment = (new Assessment())
             ->setEvent($event);
 
         $response = $client->createAssessment(
-            'projects/workards-344402',
+            env('GOOGLE_PROJECT_ID'),
             $assessment
         );
-        
 
-
-
-
-        // $webKeySettings = (new WebKeySettings())
-        //     ->setAllowedDomains(['127.0.0.1'])
-        //     ->setAllowAmpTraffic(false)
-        //     ->setIntegrationType(IntegrationType::CHECKBOX);
-        // $key = (new Key())
-        //     ->setWebSettings($webKeySettings)
-        //     ->setDisplayName('recaptchaKey')
-        //     ->setName('workardKey');
-        // $response = $client->createKey($project, $key);
         $bot_score = $response->getRiskAnalysis()->getScore();
         dd($bot_score);
         Validator::make($input, [
